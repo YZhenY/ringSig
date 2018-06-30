@@ -15,7 +15,8 @@ var lambdaAddition = (point1, point2, prime) => {
 
     var bottom = point1.x - point2.x
     bottom = modulus(bottom, prime)
-
+    console.log('point1: ', point1, 'point2: ', point2);
+    console.log('top: ', top, "bottom: ", bottom);
     return top * findInverse(bottom, prime) % prime;
 }
 
@@ -23,7 +24,6 @@ var lambdaDoubling = (point1, prime) => {
     var a = 1;
     var top = 3 * Math.pow(point1.x,2) + a
     var bottom = 2 * point1.y;
-
     return top * findInverse(bottom, prime) % prime;
 }
 
@@ -42,7 +42,6 @@ var computePoint = (point1, point2, prime) => {
     } else {
         lambda = lambdaAddition(point1, point2, prime);
     }
-    console.log('Lambda: ', lambda);
     var ex = modulus(lambda * lambda - point1.x - point2.x, prime);
     var why = modulus((point1.x - ex) * lambda - point1.y, prime);
     return {
@@ -56,7 +55,13 @@ var computePoints = (generator, prime) => {
     res.push(generator);
     res.push(computePoint(generator, generator, prime));
     for (var i = 0; i < 14; i++) {
-        res.push(computePoint(res[res.length - 1], generator, prime));
+        var nextPoint = computePoint(res[res.length - 1], generator, prime);
+        if (isNaN(nextPoint.x) || isNaN(nextPoint.y)) {
+            nextPoint = computePoint(res[res.length -1],computePoint(generator, generator, prime), prime);
+            res.push({x:0, y:0});
+            i++;
+        }
+        res.push(nextPoint);
         if (isNaN(res[res.length - 1].x)) console.log(i, 'IS NAN')
     }
     return res;
